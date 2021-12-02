@@ -25,6 +25,10 @@ def multivariate_gaussian(pos, mu, Sigma):
 
     return np.exp(-fac / 2) / N
 
+def cone(pos, glide, x_0, y_0):
+    """Return a cone surface for the glide."""
+
+    return -(1/glide)*(pos[:, :, 0]**2 + pos[:, :, 1]**2)**0.5 + 0.6
 
 # Our 2-dimensional distribution will be over variables X and Y
 N = 40
@@ -58,15 +62,27 @@ Z = multivariate_gaussian(pos, mu_0, Sigma_0)
 Z = Z + 0.8*multivariate_gaussian(pos, mu_1, Sigma_1)
 Z = Z + multivariate_gaussian(pos, mu_2, Sigma_2)
 Z = Z + 0.5*multivariate_gaussian(pos, mu_3, Sigma_3)
-Z = Z + 0.1*multivariate_gaussian(pos, mu_4, Sigma_4)
+Z = 26*(Z + 0.1*multivariate_gaussian(pos, mu_4, Sigma_4)) # adding a 26 factor to have "mountains" that are 1.6 km high around the site
+
+glide = 10
+x_0 = 0
+y_0 = 0 
+Cone = cone(pos, glide, x_0, y_0)
+
 
 # plot using subplots
 fig = plt.figure()
 #ax1 = fig.add_subplot(1,1,1,projection='3d')
 ax1 = plt.axes(projection='3d')
 
-ax1.plot_surface(X, Y, Z, rstride=3, cstride=3, linewidth=1, antialiased=True,
+Z1 = Cone-Z
+Z1[Z1<0]= 0
+
+ax1.plot_surface(X, Y, Z1, rstride=3, cstride=3, linewidth=1, antialiased=True,
                 cmap=cm.viridis)
+
+#ax1.plot_surface(X, Y, Cone, rstride=3, cstride=3, linewidth=1, antialiased=True,
+#                cmap=cm.inferno)
 #ax1.view_init(55,-70)
 #ax1.set_xticks([])
 #ax1.set_yticks([])
